@@ -1,0 +1,28 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>br.com.senaga.wildfly.ejbsingleton</groupId>
+		<artifactId>ticket-agency</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+	<artifactId>ticket-agency-ejb</artifactId>
+	<packaging>ejb</packaging>
+	<name>ticket-agency-ejb</name>
+
+	<build>
+		<finalName>${project.artifactId}</finalName>
+		<plugins>
+			<!-- WildFly plugin to deploy the application -->
+			<plugin>
+				<groupId>org.wildfly.plugins</groupId>
+				<artifactId>wildfly-maven-plugin</artifactId>
+				<version>1.0.2.Final</version>
+				<configuration>
+					<filename>${project.build.finalName}.jar</filename>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
