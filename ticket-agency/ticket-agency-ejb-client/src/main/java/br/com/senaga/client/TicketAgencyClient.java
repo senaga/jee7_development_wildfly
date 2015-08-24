@@ -1,5 +1,9 @@
 package br.com.senaga.client;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -16,16 +20,17 @@ import exception.SeatBookedException;
 public class TicketAgencyClient {
 
 	private static final Logger logger = Logger.getLogger(TicketAgencyClient.class.getName());
-
+	
+	private final Context context;
+	private TheatreInfoRemote theatreInfo;
+	private TheatreBookerRemote theatreBooker;
+	private	final List<Future<String>> lastBookings = new ArrayList<>();		
+	
 	public static void main(String[] args) throws Exception {
 		Logger.getLogger("org.jboss").setLevel(Level.SEVERE);
 		Logger.getLogger("org.xnio").setLevel(Level.SEVERE);
 		new TicketAgencyClient().run();
 	}
-
-	private final Context context;
-	private TheatreInfoRemote theatreInfo;
-	private TheatreBookerRemote theatreBooker;
 
 	public TicketAgencyClient() throws NamingException {
 		final Properties jndiProperties = new Properties();
@@ -34,7 +39,7 @@ public class TicketAgencyClient {
 	}
 
 	private enum Command {
-		BOOK, LIST, MONEY, QUIT, RELOAD, ASYNC_FORGET, INVALID;
+		BOOK, BOOK_ASYNC, MAIL, LIST, MONEY, QUIT, RELOAD, ASYNC_FORGET, INVALID;
 		public static Command parseCommand(String stringCommand) {
 			try {
 				return valueOf(stringCommand.trim().toUpperCase());
@@ -52,18 +57,24 @@ public class TicketAgencyClient {
 			final String stringCommand = IOUtils.readLine("> ");
 			final Command command = Command.parseCommand(stringCommand);
 			switch (command) {
-			case ASYNC_FORGET:
-				handleAsyncFireForget();
-				break;
 			case BOOK:
 				handleBook();
 				break;
+			case BOOK_ASYNC:
+				handleBookAsync();
+				break;				
 			case LIST:
 				handleList();
 				break;
 			case MONEY:
 				handleMoney();
 				break;
+			case MAIL:
+				handleMail();
+				break;				
+			case ASYNC_FORGET:
+				handleAsyncFireForget();
+				break;				
 			case QUIT:
 				handleQuit();
 				break;
@@ -102,6 +113,41 @@ public class TicketAgencyClient {
 		logger.info("Reload");		
 	}
 	
+	private	void handleBookAsync() {
+		String text = IOUtils.readLine("Enter SeatId: ");
+		int	seatId;
+		try	{
+			seatId = Integer.parseInt(text);
+		} catch	(NumberFormatException	e1)	{
+			logger.warning("Wrong seatId format!");
+			return;
+		}
+		lastBookings.add(theatreBooker.bookSeatAsync(seatId));
+		logger.info("Booking issued. Verify your mail!");
+	}
+	
+	private void handleMail() {
+		boolean displayed = false;
+		final List<Future<String>> notFinished = new ArrayList<>();
+		for (Future<String> booking: lastBookings) {
+			if (booking.isDone()) {
+				try {
+					final String result = booking.get();
+					logger.info("Mail received: " + result);
+					displayed = true;
+				} catch (InterruptedException | ExecutionException e) {
+					logger.warning(e.getMessage());
+				}
+			} else {
+				notFinished.add(booking);
+			}
+		}
+		lastBookings.retainAll(notFinished);
+		if (!displayed) {
+			logger.info("No mail received!");
+		}
+	}
+	
 	private void handleAsyncFireForget() {
 		try {
 			int seatId = IOUtils.readInt("Enter SeatId: ");
@@ -135,6 +181,6 @@ public class TicketAgencyClient {
 	private void showWelcomeMessage() {
 		System.out.println("Theatre	booking	system");
 		System.out.println("=====================================");
-		System.out.println("Commands: book, list, money, reload, async_forget, quit");
+		System.out.println("Commands: book, book_async, list, money, reload, async_forget, mail, quit");
 	}
 }

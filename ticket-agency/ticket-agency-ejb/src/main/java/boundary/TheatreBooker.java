@@ -1,10 +1,12 @@
 package boundary;
 
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.AccessTimeout;
+import javax.ejb.AsyncResult;
 import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
 import javax.ejb.Remote;
@@ -34,6 +36,7 @@ public class TheatreBooker implements TheatreBookerRemote {
 		this.money = 100;
 	}
 	
+	@Override
 	public int getAccountBalance()	{
 		return money;
 	}	
@@ -55,5 +58,17 @@ public class TheatreBooker implements TheatreBookerRemote {
 	public void bookSeatAsyncFireAndForget(int seatId) throws NotEnoughMoneyException, NoSuchSeatException, SeatBookedException {
 		logger.info("call bookSeatAsyncFireAndForget.");
 		bookSeat(seatId);
+	}
+	
+	@Asynchronous
+	@Override	
+	public Future<String> bookSeatAsync(int	seatId) {
+		try	{
+			Thread.sleep(10000);
+			bookSeat(seatId);
+			return new AsyncResult<>("Booked seat: " + seatId + ". Money left: " + money);
+		} catch (NoSuchSeatException | SeatBookedException | NotEnoughMoneyException | InterruptedException e) {
+			return new AsyncResult<>(e.getMessage());
+		}
 	}
 }
