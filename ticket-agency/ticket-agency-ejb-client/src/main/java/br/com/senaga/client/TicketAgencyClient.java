@@ -170,11 +170,11 @@ public class TicketAgencyClient {
 		System.exit(0);
 	}
 
-	private	TheatreInfoRemote lookupTheatreInfoEJB() throws NamingException {
+	private TheatreInfoRemote lookupTheatreInfoEJB() throws NamingException {
 		return (TheatreInfoRemote)context.lookup("ejb:/ticket-agency-ejb//TheatreInfo!boundary.TheatreInfoRemote");
 	}
 
-	private	TheatreBookerRemote	lookupTheatreBookerEJB() throws NamingException	{
+	private TheatreBookerRemote lookupTheatreBookerEJB() throws NamingException {
 		return (TheatreBookerRemote)context.lookup("ejb:/ticket-agency-ejb//TheatreBooker!boundary.TheatreBookerRemote?stateful");
 	}
 
