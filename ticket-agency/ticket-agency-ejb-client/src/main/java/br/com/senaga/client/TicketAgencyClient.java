@@ -34,7 +34,7 @@ public class TicketAgencyClient {
 	}
 
 	private enum Command {
-		BOOK, LIST, MONEY, QUIT, INVALID;
+		BOOK, LIST, MONEY, QUIT, RELOAD, ASYNC_FORGET, INVALID;
 		public static Command parseCommand(String stringCommand) {
 			try {
 				return valueOf(stringCommand.trim().toUpperCase());
@@ -47,16 +47,17 @@ public class TicketAgencyClient {
 	private void run() throws NamingException {
 		this.theatreInfo = lookupTheatreInfoEJB();
 		this.theatreBooker = lookupTheatreBookerEJB();
-		showWelcomeMessage();
 		while (true) {
+			showWelcomeMessage();
 			final String stringCommand = IOUtils.readLine("> ");
 			final Command command = Command.parseCommand(stringCommand);
-
 			switch (command) {
+			case ASYNC_FORGET:
+				handleAsyncFireForget();
+				break;
 			case BOOK:
 				handleBook();
 				break;
-
 			case LIST:
 				handleList();
 				break;
@@ -66,6 +67,9 @@ public class TicketAgencyClient {
 			case QUIT:
 				handleQuit();
 				break;
+			case RELOAD:
+				reload();
+				break;				
 			default:
 				logger.warning("Unknown	command	" + stringCommand);
 			}
@@ -75,7 +79,7 @@ public class TicketAgencyClient {
 	private void handleBook() {
 		int seatId;
 		try {
-			seatId = IOUtils.readInt("Enter	SeatId:	");
+			seatId = IOUtils.readInt("Enter SeatId: ");
 		} catch (NumberFormatException e1) {
 			logger.warning("Wrong SeatId format!");
 			return;
@@ -91,6 +95,23 @@ public class TicketAgencyClient {
 
 	private void handleList() {
 		logger.info(theatreInfo.printSeatList());
+	}
+	
+	private void reload() {
+		theatreInfo.reconfigCache();
+		logger.info("Reload");		
+	}
+	
+	private void handleAsyncFireForget() {
+		try {
+			int seatId = IOUtils.readInt("Enter SeatId: ");
+			theatreBooker.bookSeatAsyncFireAndForget(seatId);
+			logger.info("Async Fire-And-Forget");			
+		} catch (NumberFormatException e1) {
+			logger.warning("Wrong SeatId format!");
+		} catch (SeatBookedException | NotEnoughMoneyException | NoSuchSeatException e) {
+			logger.warning(e.getMessage());
+		}
 	}
 
 	private void handleMoney() {
@@ -114,6 +135,6 @@ public class TicketAgencyClient {
 	private void showWelcomeMessage() {
 		System.out.println("Theatre	booking	system");
 		System.out.println("=====================================");
-		System.out.println("Commands:	book,	list,money,	quit");
+		System.out.println("Commands: book, list, money, reload, async_forget, quit");
 	}
 }

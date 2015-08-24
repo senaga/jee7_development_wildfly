@@ -5,6 +5,7 @@ import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.AccessTimeout;
+import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
 import javax.ejb.Remote;
 import javax.ejb.Stateful;
@@ -20,7 +21,7 @@ import singleton.TheatreBox;
 public class TheatreBooker implements TheatreBookerRemote {	
 	
 	@SuppressWarnings("unused")
-	private static final long serialVersionUID = 1L;	
+	private static final long serialVersionUID = 2L;	
 	
 	private	static final Logger logger = Logger.getLogger(TheatreBooker.class.getName());	
 	
@@ -37,6 +38,7 @@ public class TheatreBooker implements TheatreBookerRemote {
 		return money;
 	}	
 	
+	@Override
 	public String bookSeat(int seatId) throws SeatBookedException, NotEnoughMoneyException, NoSuchSeatException {
 		final int seatPrice	= theatreBox.getSeatPrice(seatId);
 		if	(seatPrice > money)	{
@@ -46,5 +48,12 @@ public class TheatreBooker implements TheatreBookerRemote {
 		money = money - seatPrice;
 		logger.info("Seat " + seatId +" booked.");
 		return "Seat booked.";
+	}
+	
+	@Asynchronous
+	@Override
+	public void bookSeatAsyncFireAndForget(int seatId) throws NotEnoughMoneyException, NoSuchSeatException, SeatBookedException {
+		logger.info("call bookSeatAsyncFireAndForget.");
+		bookSeat(seatId);
 	}
 }

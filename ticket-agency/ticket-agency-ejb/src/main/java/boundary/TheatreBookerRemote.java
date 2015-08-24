@@ -6,6 +6,6 @@ import exception.SeatBookedException;
 
 public interface TheatreBookerRemote {
 	public String bookSeat(int seatId) throws SeatBookedException, NotEnoughMoneyException, NoSuchSeatException;
-	
-	public	int	getAccountBalance();	
+	public void bookSeatAsyncFireAndForget(int seatId) throws NotEnoughMoneyException, NoSuchSeatException, SeatBookedException;
+	public int getAccountBalance();	
 }

@@ -19,6 +19,7 @@ public class TheatreInfo implements TheatreInfoRemote {
 	@EJB
 	private TheatreBox box;
 
+	@Override
 	public String printSeatList() {
 		final Collection<Seat> seats = box.getSeats();
 		final StringBuilder sb = new StringBuilder();
@@ -27,5 +28,10 @@ public class TheatreInfo implements TheatreInfoRemote {
 			sb.append(System.lineSeparator());
 		}
 		return sb.toString();
+	}
+
+	@Override
+	public void reconfigCache() {
+		box.reconfigCache();		
 	}
 }
