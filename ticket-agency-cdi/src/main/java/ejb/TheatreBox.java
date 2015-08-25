@@ -22,8 +22,6 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
 import entities.Seat;
-import exception.NoSuchSeatException;
-import exception.SeatBookedException;
 
 @Singleton
 @Startup
@@ -81,12 +79,12 @@ public class TheatreBox {
 	}	
 
 	@Lock(LockType.READ)
-	public int getSeatPrice(int seatId) throws NoSuchSeatException {
+	public int getSeatPrice(int seatId) {
 		return getSeat(seatId).getPrice();
 	}
 
 	@Lock(LockType.WRITE)
-	public void buyTicket(int seatId) throws SeatBookedException, NoSuchSeatException {	
+	public void buyTicket(int seatId) {	
 		final Seat seat = getSeat(seatId);
 		final Seat bookedSeat = seat.getBookedSeat();
 		addSeat(bookedSeat);
@@ -94,11 +92,8 @@ public class TheatreBox {
 	}
 	
 	@Lock(LockType.READ)
-	private Seat getSeat(int seatId) throws NoSuchSeatException {
+	private Seat getSeat(int seatId) {
 		final Seat seat = seats.get(seatId);
-		if (seat == null) {
-			throw new NoSuchSeatException("Seat " + seatId + " does not exist!");
-		}
 		return seat;
 	}
 }

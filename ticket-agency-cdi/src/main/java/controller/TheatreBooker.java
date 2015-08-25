@@ -12,8 +12,6 @@ import javax.inject.Named;
 import org.jboss.logging.Logger;
 
 import ejb.TheatreBox;
-import exception.NoSuchSeatException;
-import exception.SeatBookedException;
 
 @Named
 @SessionScoped
@@ -37,7 +35,7 @@ public class TheatreBooker implements Serializable {
 		this.money = 100;
 	}
 	
-	public void bookSeat(int seatId) throws NoSuchSeatException, SeatBookedException {
+	public void bookSeat(int seatId) {
 		logger.info("Booking seat " + seatId);
 		int seatPrice = theatreBox.getSeatPrice(seatId);
 		if (seatPrice > money) {
