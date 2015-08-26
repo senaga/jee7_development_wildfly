@@ -1,22 +1,24 @@
 package controller;
 
+import java.io.Serializable;
 import java.util.Optional;
 
-import javax.enterprise.context.RequestScoped;
+import javax.enterprise.inject.Model;
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import ejb.TheatreBox;
 import entities.Seat;
 
-@RequestScoped
-@Named(value="poolerBean")
-public class Pooler {
+@Model
+public class PoolerBean implements Serializable {
 
+	private static final long serialVersionUID = 1L;
+	
 	@Inject
 	private TheatreBox theatreBox;
 
-	public boolean isPollingActive() {
+	public boolean getPollingActive() {
+		System.out.println("Pooling");
 		return areFreeSeatsAvailable();
 	}
 
