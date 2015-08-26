@@ -12,7 +12,7 @@ Projeto ticket-agency:
 - Asynchronous: Fire-And-Forget and Future
 
 Projeto ticket-agency-cdi:
-- Maven Web Project: War
+- Maven Web Project: war | wildfly:deploy | wildfly:run
 - EJB Singleton
 - CDI: @Model, @Inject, @Produces, @SessionScoped, @Named, InjectionPoint
 - CDI Event: @Observes, Event
