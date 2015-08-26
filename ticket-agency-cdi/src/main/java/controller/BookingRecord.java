@@ -1,7 +1,7 @@
 package controller;
 
 import javax.enterprise.event.Observes;
-import javax.faces.bean.ViewScoped;
+import javax.faces.view.ViewScoped;
 import javax.inject.Named;
 
 import entities.Seat;
